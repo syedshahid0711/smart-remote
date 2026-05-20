@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>SmartNova | Smart Lights</title>
+  <link rel="stylesheet" href="../style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    .light-preview{text-align:center;padding:30px 20px;border-radius:var(--radius);border:1px solid var(--card-border);margin-bottom:4px;transition:background .5s,border-color .5s;background:var(--card)}
+    .light-bulb{font-size:4rem;display:block;margin-bottom:8px;transition:.5s;filter:grayscale(1)}
+    .light-bulb.on{filter:none;animation:float 3s ease-in-out infinite}
+    .light-name{font-family:'Orbitron',sans-serif;font-size:1rem;color:var(--blue)}
+    .light-brightness{font-size:.8rem;color:var(--text-dim);margin-top:4px}
+    .slider-section{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px}
+    .slider-label{display:flex;justify-content:space-between;margin-bottom:10px;font-size:.85rem;color:var(--text-dim)}
+    .slider-label span:last-child{color:var(--blue);font-weight:600}
+    .color-section{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:18px}
+    .color-pick-row{display:flex;align-items:center;gap:12px;margin-bottom:14px}
+    .color-pick-row label{font-size:.85rem;color:var(--text-dim);flex:1}
+    .preset-colors{display:flex;gap:10px;flex-wrap:wrap}
+    .color-dot{width:36px;height:36px;border-radius:50%;cursor:pointer;border:2px solid transparent;transition:var(--transition)}
+    .color-dot:hover,.color-dot.active{border-color:#fff;transform:scale(1.15)}
+    .scene-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .scene-btn{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:16px 8px;cursor:pointer;transition:var(--transition);color:var(--text);font-size:.75rem;font-weight:500}
+    .scene-btn span:first-child{font-size:1.4rem}
+    .scene-btn:hover,.scene-btn.active{border-color:var(--blue);background:rgba(0,212,255,.08);color:var(--blue)}
+    .scene-btn:active{transform:scale(.95)}
+    .on-off-row{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .light-on-btn{background:linear-gradient(135deg,#ffcc00,#ff8c00);border:none;border-radius:var(--radius-sm);padding:16px;color:#000;font-weight:700;cursor:pointer;transition:var(--transition);font-size:.9rem}
+    .light-off-btn{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:16px;color:var(--text-dim);font-weight:600;cursor:pointer;transition:var(--transition);font-size:.9rem}
+    .light-on-btn:hover{box-shadow:0 0 20px rgba(255,204,0,.4);transform:translateY(-2px)}
+    .light-off-btn:hover{border-color:var(--red);color:var(--red)}
+    .light-on-btn:active,.light-off-btn:active{transform:scale(.96)}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="page-header">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div><div class="page-title">Smart Lights</div><div class="page-subtitle">Living Room</div></div>
+    <div class="page-power">
+      <button class="power-btn" id="power-btn" onclick="togglePower()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+  <main class="main-content" style="padding-bottom:30px">
+
+    <!-- Preview -->
+    <div class="light-preview slide-up" id="light-preview">
+      <span class="light-bulb" id="bulb-icon">💡</span>
+      <div class="light-name" id="scene-name">Warm White</div>
+      <div class="light-brightness" id="brightness-label">Brightness: 70%</div>
+    </div>
+
+    <!-- ON / OFF -->
+    <div class="on-off-row slide-up">
+      <button class="light-on-btn" onclick="setLight(true)">💡 Turn ON</button>
+      <button class="light-off-btn" onclick="setLight(false)">⭕ Turn OFF</button>
+    </div>
+
+    <!-- Brightness -->
+    <div class="slider-section slide-up">
+      <div class="slider-label"><span>🔆 Brightness</span><span id="bright-val">70%</span></div>
+      <input type="range" id="brightness-slider" min="1" max="100" value="70" oninput="setBrightness(this.value)"/>
+    </div>
+
+    <!-- Color Picker -->
+    <div class="color-section slide-up">
+      <div class="color-pick-row">
+        <label>🎨 Custom Color</label>
+        <input type="color" id="color-picker" value="#ffffff" onchange="setColor(this.value)" style="width:80px;height:36px"/>
+      </div>
+      <p style="font-size:.78rem;color:var(--text-dim);margin-bottom:10px">Quick Colors</p>
+      <div class="preset-colors" id="preset-colors">
+        <div class="color-dot active" style="background:#ffffff" onclick="setColor('#ffffff')" data-color="#ffffff"></div>
+        <div class="color-dot" style="background:#ffcc44" onclick="setColor('#ffcc44')" data-color="#ffcc44"></div>
+        <div class="color-dot" style="background:#ff4444" onclick="setColor('#ff4444')" data-color="#ff4444"></div>
+        <div class="color-dot" style="background:#44aaff" onclick="setColor('#44aaff')" data-color="#44aaff"></div>
+        <div class="color-dot" style="background:#44ff88" onclick="setColor('#44ff88')" data-color="#44ff88"></div>
+        <div class="color-dot" style="background:#aa44ff" onclick="setColor('#aa44ff')" data-color="#aa44ff"></div>
+        <div class="color-dot" style="background:#ff8844" onclick="setColor('#ff8844')" data-color="#ff8844"></div>
+      </div>
+    </div>
+
+    <!-- Scene Presets -->
+    <p class="section-label">Scene Presets</p>
+    <div class="scene-grid slide-up">
+      <button class="scene-btn active" id="scene-warm" onclick="setScene('warm','#ffcc44',70,'Warm White')">
+        <span>🌅</span><span>Warm</span>
+      </button>
+      <button class="scene-btn" id="scene-cool" onclick="setScene('cool','#44aaff',80,'Cool White')">
+        <span>❄️</span><span>Cool</span>
+      </button>
+      <button class="scene-btn" id="scene-movie" onclick="setScene('movie','#220044',15,'Movie')">
+        <span>🎬</span><span>Movie</span>
+      </button>
+      <button class="scene-btn" id="scene-sleep" onclick="setScene('sleep','#442200',5,'Sleep')">
+        <span>🌙</span><span>Sleep</span>
+      </button>
+      <button class="scene-btn" id="scene-party" onclick="setScene('party','#ff44aa',100,'Party')">
+        <span>🎉</span><span>Party</span>
+      </button>
+      <button class="scene-btn" id="scene-focus" onclick="setScene('focus','#ffffff',100,'Focus')">
+        <span>💻</span><span>Focus</span>
+      </button>
+    </div>
+
+  </main>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script>
+const st=JSON.parse(localStorage.getItem('smartnova_state')||'{}');
+const lights=(st.devices&&st.devices.lights)?st.devices.lights:{on:true,brightness:70,color:'#ffffff',scene:'warm'};
+const cfg=st.settings||{sound:true,vibration:true};
+function sendWifiCommand(d,c,v){console.log(`[WiFi] ${d}:${c}=${v||''}`);}
+function save(){if(!st.devices)st.devices={};st.devices.lights=lights;localStorage.setItem('smartnova_state',JSON.stringify(st));}
+function syncDisplay(){
+  const preview=document.getElementById('light-preview');
+  const bulb=document.getElementById('bulb-icon');
+  document.getElementById('power-btn').classList.toggle('on',lights.on);
+  bulb.classList.toggle('on',lights.on);
+  if(lights.on){
+    preview.style.background=`rgba(${hexToRgb(lights.color)},0.08)`;
+    preview.style.borderColor=lights.color+'66';
+    bulb.style.filter='none';
+  } else {
+    preview.style.background='var(--card)';
+    preview.style.borderColor='var(--card-border)';
+    bulb.style.filter='grayscale(1)';
+  }
+  document.getElementById('brightness-label').textContent=`Brightness: ${lights.brightness}%`;
+  document.getElementById('bright-val').textContent=`${lights.brightness}%`;
+  document.getElementById('brightness-slider').value=lights.brightness;
+  document.getElementById('color-picker').value=lights.color;
+  document.querySelectorAll('.color-dot').forEach(d=>d.classList.toggle('active',d.dataset.color===lights.color));
+}
+function hexToRgb(hex){
+  const r=parseInt(hex.slice(1,3),16),g=parseInt(hex.slice(3,5),16),b=parseInt(hex.slice(5,7),16);
+  return `${r},${g},${b}`;
+}
+function togglePower(){lights.on=!lights.on;syncDisplay();sendWifiCommand('lights',lights.on?'ON':'OFF');showToast(`💡 Lights ${lights.on?'ON':'OFF'}`);vib(30);click();save();}
+function setLight(on){lights.on=on;syncDisplay();sendWifiCommand('lights',on?'ON':'OFF');showToast(`💡 Lights ${on?'ON':'OFF'}`);vib(30);click();save();}
+function setBrightness(v){lights.brightness=parseInt(v);document.getElementById('bright-val').textContent=`${v}%`;document.getElementById('brightness-label').textContent=`Brightness: ${v}%`;sendWifiCommand('lights','SET_BRIGHTNESS',v);save();}
+function setColor(c){lights.color=c;syncDisplay();document.getElementById('scene-name').textContent='Custom';sendWifiCommand('lights','SET_COLOR',c);click();vib(15);save();}
+function setScene(key,color,bright,name){
+  lights.color=color;lights.brightness=bright;lights.on=true;
+  document.getElementById('scene-name').textContent=name;
+  document.querySelectorAll('.scene-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById(`scene-${key}`)?.classList.add('active');
+  syncDisplay();sendWifiCommand('lights','SET_SCENE',key);showToast(`Scene: ${name}`);click();vib(20);save();
+}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.add('hidden'),2500);}
+function vib(p){if(cfg.vibration&&navigator.vibrate)navigator.vibrate(p);}
+function click(){if(!cfg.sound)return;try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=440;g.gain.setValueAtTime(.07,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.12);o.start();o.stop(c.currentTime+.12);}catch(e){}}
+syncDisplay();
+</script>
+</body>
+</html>

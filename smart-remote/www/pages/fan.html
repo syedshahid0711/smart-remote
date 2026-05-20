@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>SmartNova | Fan Control</title>
+  <link rel="stylesheet" href="../style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    .fan-visual{text-align:center;padding:30px 20px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius)}
+    .fan-icon-wrap{position:relative;width:120px;height:120px;margin:0 auto 16px;display:flex;align-items:center;justify-content:center}
+    .fan-circle{position:absolute;inset:0;border-radius:50%;border:2px solid rgba(0,212,255,.2)}
+    .fan-emoji{font-size:3.5rem;display:block;transition:.3s}
+    .fan-spinning{animation:fanSpin linear infinite}
+    .fan-speed-label{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--blue);margin-bottom:4px}
+    .fan-rpm{font-size:.78rem;color:var(--text-dim)}
+    .speed-row{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+    .speed-card{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:14px 6px;cursor:pointer;transition:var(--transition);color:var(--text-dim);font-size:.75rem}
+    .speed-card:hover,.speed-card.active{border-color:var(--blue);background:rgba(0,212,255,.08);color:var(--blue)}
+    .speed-card .s-num{font-family:'Orbitron',sans-serif;font-size:1.2rem;font-weight:700}
+    .speed-card .s-bar{width:100%;height:4px;background:#1a1a2e;border-radius:2px;overflow:hidden}
+    .speed-card .s-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:2px}
+    .feature-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .feature-btn{display:flex;flex-direction:column;align-items:center;gap:6px;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:18px 10px;cursor:pointer;transition:var(--transition);color:var(--text);font-size:.8rem;font-weight:500}
+    .feature-btn span:first-child{font-size:1.6rem}
+    .feature-btn:hover,.feature-btn.active{border-color:var(--blue);background:rgba(0,212,255,.08);color:var(--blue);box-shadow:var(--shadow-neon)}
+    .feature-btn:active{transform:scale(.95)}
+    .timer-row{display:flex;align-items:center;justify-content:space-between;background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius-sm);padding:14px 16px}
+    .timer-controls{display:flex;align-items:center;gap:12px}
+    .timer-val{font-family:'Orbitron',sans-serif;font-size:1.1rem;color:var(--blue);min-width:60px;text-align:center}
+    .timer-btn{width:32px;height:32px;border-radius:50%;background:var(--card);border:1px solid var(--card-border);color:var(--text);cursor:pointer;display:flex;align-items:center;justify-content:center;transition:var(--transition)}
+    .timer-btn:hover{border-color:var(--blue);color:var(--blue)}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="page-header">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div><div class="page-title">Fan Control</div><div class="page-subtitle">Ceiling Fan</div></div>
+    <div class="page-power">
+      <button class="power-btn" id="power-btn" onclick="togglePower()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+  <main class="main-content" style="padding-bottom:30px">
+
+    <!-- Fan Visual -->
+    <div class="fan-visual slide-up">
+      <div class="fan-icon-wrap">
+        <div class="fan-circle"></div>
+        <span class="fan-emoji" id="fan-emoji">🌀</span>
+      </div>
+      <div class="fan-speed-label" id="fan-speed-label">Speed: 3</div>
+      <div class="fan-rpm" id="fan-rpm">~750 RPM</div>
+    </div>
+
+    <!-- Speed Cards -->
+    <p class="section-label">Fan Speed</p>
+    <div class="speed-row slide-up">
+      <div class="speed-card" id="spd-1" onclick="setSpeed(1)">
+        <div class="s-num">1</div>
+        <div class="s-bar"><div class="s-fill" style="width:20%"></div></div>
+        <span>Low</span>
+      </div>
+      <div class="speed-card" id="spd-2" onclick="setSpeed(2)">
+        <div class="s-num">2</div>
+        <div class="s-bar"><div class="s-fill" style="width:40%"></div></div>
+        <span>Slow</span>
+      </div>
+      <div class="speed-card active" id="spd-3" onclick="setSpeed(3)">
+        <div class="s-num">3</div>
+        <div class="s-bar"><div class="s-fill" style="width:60%"></div></div>
+        <span>Mid</span>
+      </div>
+      <div class="speed-card" id="spd-4" onclick="setSpeed(4)">
+        <div class="s-num">4</div>
+        <div class="s-bar"><div class="s-fill" style="width:80%"></div></div>
+        <span>Fast</span>
+      </div>
+      <div class="speed-card" id="spd-5" onclick="setSpeed(5)">
+        <div class="s-num">5</div>
+        <div class="s-bar"><div class="s-fill" style="width:100%"></div></div>
+        <span>Max</span>
+      </div>
+    </div>
+
+    <!-- Features -->
+    <p class="section-label">Features</p>
+    <div class="feature-grid slide-up">
+      <button class="feature-btn" id="swing-btn" onclick="toggleSwing()">
+        <span>🔄</span><span id="swing-label">Swing OFF</span>
+      </button>
+      <button class="feature-btn" id="breeze-btn" onclick="toggleBreeze()">
+        <span>🍃</span><span id="breeze-label">Breeze OFF</span>
+      </button>
+      <button class="feature-btn" onclick="setSpeed(1)">
+        <span>😴</span><span>Night Mode</span>
+      </button>
+      <button class="feature-btn" onclick="setSpeed(5)">
+        <span>💨</span><span>Turbo</span>
+      </button>
+    </div>
+
+    <!-- Timer -->
+    <p class="section-label">Timer</p>
+    <div class="timer-row slide-up">
+      <span style="color:var(--text-dim);font-size:.88rem">⏱️ Auto OFF</span>
+      <div class="timer-controls">
+        <button class="timer-btn" onclick="changeTimer(-1)">－</button>
+        <div class="timer-val" id="timer-val">0 hr</div>
+        <button class="timer-btn" onclick="changeTimer(1)">＋</button>
+      </div>
+    </div>
+
+  </main>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script>
+const st=JSON.parse(localStorage.getItem('smartnova_state')||'{}');
+const fan=(st.devices&&st.devices.fan)?st.devices.fan:{on:false,speed:3,swing:true,breeze:false,timer:0};
+const cfg=st.settings||{sound:true,vibration:true};
+const rpm=[0,350,500,750,950,1200];
+let spinInterval=null;
+function sendIRCommand(d,c,v){console.log(`[IR] ${d}:${c}=${v||''}`);}
+function save(){if(!st.devices)st.devices={};st.devices.fan=fan;localStorage.setItem('smartnova_state',JSON.stringify(st));}
+function syncDisplay(){
+  document.getElementById('fan-speed-label').textContent=fan.on?`Speed: ${fan.speed}`:'Stopped';
+  document.getElementById('fan-rpm').textContent=fan.on?`~${rpm[fan.speed]} RPM`:'0 RPM';
+  document.getElementById('power-btn').classList.toggle('on',fan.on);
+  const em=document.getElementById('fan-emoji');
+  if(fan.on){
+    const dur=Math.max(0.3,1.2-(fan.speed*0.2));
+    em.style.animation=`fanSpin ${dur}s linear infinite`;
+  } else {
+    em.style.animation='none';
+  }
+  document.querySelectorAll('.speed-card').forEach(c=>c.classList.remove('active'));
+  if(fan.on) document.getElementById(`spd-${fan.speed}`)?.classList.add('active');
+  document.getElementById('swing-label').textContent=`Swing ${fan.swing?'ON':'OFF'}`;
+  document.getElementById('swing-btn').classList.toggle('active',fan.swing);
+  document.getElementById('breeze-label').textContent=`Breeze ${fan.breeze?'ON':'OFF'}`;
+  document.getElementById('breeze-btn').classList.toggle('active',fan.breeze);
+  document.getElementById('timer-val').textContent=fan.timer?`${fan.timer} hr`:'0 hr';
+}
+function togglePower(){fan.on=!fan.on;syncDisplay();sendIRCommand('fan',fan.on?'POWER_ON':'POWER_OFF');showToast(`🌀 Fan ${fan.on?'ON':'OFF'}`);vib(30);click();save();}
+function setSpeed(s){fan.speed=s;if(!fan.on){fan.on=true;}syncDisplay();sendIRCommand('fan','SET_SPEED',s);showToast(`Speed: ${s}`);click();vib(20);save();}
+function toggleSwing(){fan.swing=!fan.swing;syncDisplay();sendIRCommand('fan',`SWING_${fan.swing?'ON':'OFF'}`);click();vib(20);save();}
+function toggleBreeze(){fan.breeze=!fan.breeze;syncDisplay();sendIRCommand('fan',`BREEZE_${fan.breeze?'ON':'OFF'}`);showToast(`Breeze ${fan.breeze?'ON':'OFF'}`);click();vib(20);save();}
+function changeTimer(d){fan.timer=Math.max(0,Math.min(12,fan.timer+d));syncDisplay();sendIRCommand('fan','SET_TIMER',fan.timer);click();save();}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.add('hidden'),2500);}
+function vib(p){if(cfg.vibration&&navigator.vibrate)navigator.vibrate(p);}
+function click(){if(!cfg.sound)return;try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=550;g.gain.setValueAtTime(.07,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.1);o.start();o.stop(c.currentTime+.1);}catch(e){}}
+document.addEventListener('click',e=>{const b=e.target.closest('.feature-btn,.speed-card,.timer-btn');if(!b)return;const r=document.createElement('span');r.className='ripple';const rect=b.getBoundingClientRect(),s=Math.max(rect.width,rect.height);r.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-rect.left-s/2}px;top:${e.clientY-rect.top-s/2}px`;b.appendChild(r);setTimeout(()=>r.remove(),600);});
+syncDisplay();
+</script>
+</body>
+</html>

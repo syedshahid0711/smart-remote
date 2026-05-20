@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>SmartNova | TV Remote</title>
+  <link rel="stylesheet" href="../style.css"/>
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet"/>
+  <style>
+    .tv-screen{background:#050508;border-radius:12px;padding:20px 10px;margin-bottom:12px;border:1px solid #222;text-align:center}
+    .tv-channel{font-family:'Orbitron',sans-serif;font-size:2.5rem;font-weight:900;color:var(--blue);text-shadow:0 0 20px rgba(0,212,255,.5)}
+    .tv-source{font-size:.8rem;color:var(--text-dim);margin-top:4px}
+    .tv-volume-bar{height:6px;background:#1a1a2e;border-radius:4px;margin-top:8px;overflow:hidden}
+    .tv-volume-fill{height:100%;background:linear-gradient(90deg,var(--blue),var(--purple));border-radius:4px;transition:.3s}
+    .dpad-wrap{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .dpad-btn{height:56px;border-radius:var(--radius-sm)}
+    .ok-btn{background:linear-gradient(135deg,var(--blue),var(--purple))!important;color:#fff!important;font-weight:700;height:56px;border-radius:var(--radius-sm);font-family:'Orbitron',sans-serif}
+    .btn-grid-2{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    .btn-grid-3{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}
+    .btn-grid-4{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+    .netflix-btn:hover{border-color:#e50914!important;color:#e50914!important;box-shadow:0 0 15px rgba(229,9,20,.3)!important}
+    .youtube-btn:hover{border-color:#ff0000!important;color:#ff0000!important}
+    .display-card{background:var(--card);border:1px solid var(--card-border);border-radius:var(--radius);padding:16px;margin-bottom:4px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <header class="page-header">
+    <button class="back-btn" onclick="history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div><div class="page-title">TV Remote</div><div class="page-subtitle">Samsung Smart TV</div></div>
+    <div class="page-power">
+      <button class="power-btn" id="power-btn" onclick="togglePower()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+      </button>
+    </div>
+  </header>
+  <main class="main-content" style="padding-bottom:30px">
+    <div class="display-card slide-up">
+      <div class="tv-screen">
+        <div class="tv-channel" id="ch-display">CH 1</div>
+        <div class="tv-source" id="src-display">HDMI 1</div>
+      </div>
+      <div style="display:flex;justify-content:space-between;font-size:.8rem;color:var(--text-dim)">
+        <span>🔊 Volume</span><span id="vol-num">20</span>
+      </div>
+      <div class="tv-volume-bar"><div class="tv-volume-fill" id="vol-bar" style="width:20%"></div></div>
+    </div>
+    <div class="btn-grid-2 slide-up">
+      <button class="remote-btn" onclick="changeVolume(1)" style="padding:18px">🔊+ Vol Up</button>
+      <button class="remote-btn" onclick="changeVolume(-1)" style="padding:18px">🔉- Vol Down</button>
+    </div>
+    <div class="btn-grid-2 slide-up">
+      <button class="remote-btn" onclick="changeChannel(1)">📺+ CH Up</button>
+      <button class="remote-btn" onclick="changeChannel(-1)">📺- CH Down</button>
+    </div>
+    <div class="btn-grid-2 slide-up">
+      <button class="remote-btn red-btn" onclick="toggleMute()" id="mute-btn">🔇 Mute</button>
+      <button class="remote-btn" onclick="cycleSource()">📡 Source</button>
+    </div>
+    <p class="section-label" style="margin-top:4px">Navigation</p>
+    <div class="dpad-wrap slide-up">
+      <div></div>
+      <button class="remote-btn dpad-btn" onclick="sendNav('UP')">▲</button>
+      <div></div>
+      <button class="remote-btn dpad-btn" onclick="sendNav('LEFT')">◀</button>
+      <button class="remote-btn ok-btn" onclick="sendNav('OK')">OK</button>
+      <button class="remote-btn dpad-btn" onclick="sendNav('RIGHT')">▶</button>
+      <div></div>
+      <button class="remote-btn dpad-btn" onclick="sendNav('DOWN')">▼</button>
+      <div></div>
+    </div>
+    <div class="btn-grid-3 slide-up">
+      <button class="remote-btn" onclick="sendCmd('HOME')">🏠 Home</button>
+      <button class="remote-btn" onclick="sendCmd('MENU')">☰ Menu</button>
+      <button class="remote-btn" onclick="sendCmd('BACK')">↩ Back</button>
+    </div>
+    <p class="section-label" style="margin-top:4px">Streaming</p>
+    <div class="btn-grid-4 slide-up">
+      <button class="remote-btn netflix-btn" onclick="launchApp('NETFLIX')" style="flex-direction:column;gap:4px;padding:12px 6px">🎬<span style="font-size:.65rem">Netflix</span></button>
+      <button class="remote-btn youtube-btn" onclick="launchApp('YOUTUBE')" style="flex-direction:column;gap:4px;padding:12px 6px">▶️<span style="font-size:.65rem">YouTube</span></button>
+      <button class="remote-btn" onclick="launchApp('PRIME')" style="flex-direction:column;gap:4px;padding:12px 6px">📦<span style="font-size:.65rem">Prime</span></button>
+      <button class="remote-btn" onclick="launchApp('HOTSTAR')" style="flex-direction:column;gap:4px;padding:12px 6px">⭐<span style="font-size:.65rem">Hotstar</span></button>
+    </div>
+  </main>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script>
+const st = JSON.parse(localStorage.getItem('smartnova_state')||'{}');
+const tv = (st.devices&&st.devices.tv)?st.devices.tv:{on:false,channel:1,volume:20,source:'HDMI 1'};
+const cfg = st.settings||{sound:true,vibration:true};
+let muted=false;
+const sources=['HDMI 1','HDMI 2','USB','AV','TV'];
+function sendIRCommand(d,c){console.log(`[IR] ${d}:${c}`);}
+function sync(){
+  document.getElementById('ch-display').textContent=`CH ${tv.channel}`;
+  document.getElementById('src-display').textContent=tv.source;
+  document.getElementById('vol-num').textContent=tv.volume;
+  document.getElementById('vol-bar').style.width=`${tv.volume}%`;
+  document.getElementById('power-btn').classList.toggle('on',tv.on);
+}
+function save(){if(!st.devices)st.devices={};st.devices.tv=tv;localStorage.setItem('smartnova_state',JSON.stringify(st));}
+function togglePower(){tv.on=!tv.on;sync();sendIRCommand('tv',tv.on?'POWER_ON':'POWER_OFF');showToast(`📺 TV ${tv.on?'ON':'OFF'}`);vib(30);click();save();}
+function changeVolume(d){tv.volume=Math.max(0,Math.min(100,tv.volume+d));sync();sendIRCommand('tv',d>0?'VOL_UP':'VOL_DOWN');click();vib(15);save();}
+function changeChannel(d){tv.channel=Math.max(1,tv.channel+d);sync();sendIRCommand('tv',d>0?'CH_UP':'CH_DOWN');click();vib(15);save();}
+function toggleMute(){muted=!muted;document.getElementById('mute-btn').classList.toggle('active',muted);sendIRCommand('tv','MUTE');showToast(muted?'🔇 Muted':'🔊 Unmuted');click();vib(20);}
+function cycleSource(){const i=sources.indexOf(tv.source);tv.source=sources[(i+1)%sources.length];sync();sendIRCommand('tv',`SOURCE_${tv.source.replace(' ','_')}`);showToast(`📡 ${tv.source}`);click();save();}
+function sendNav(dir){sendIRCommand('tv',`NAV_${dir}`);click();vib(15);}
+function sendCmd(cmd){sendIRCommand('tv',cmd);click();vib(20);showToast(cmd);}
+function launchApp(app){sendIRCommand('tv',`APP_${app}`);click();vib(30);showToast(`Launching ${app}...`);}
+function showToast(m){const t=document.getElementById('toast');t.textContent=m;t.classList.remove('hidden');clearTimeout(t._t);t._t=setTimeout(()=>t.classList.add('hidden'),2500);}
+function vib(p){if(cfg.vibration&&navigator.vibrate)navigator.vibrate(p);}
+function click(){if(!cfg.sound)return;try{const c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=880;g.gain.setValueAtTime(.08,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.08);o.start();o.stop(c.currentTime+.08);}catch(e){}}
+document.addEventListener('click',e=>{const b=e.target.closest('.remote-btn');if(!b)return;const r=document.createElement('span');r.className='ripple';const rect=b.getBoundingClientRect(),s=Math.max(rect.width,rect.height);r.style.cssText=`width:${s}px;height:${s}px;left:${e.clientX-rect.left-s/2}px;top:${e.clientY-rect.top-s/2}px`;b.appendChild(r);setTimeout(()=>r.remove(),600);});
+sync();
+</script>
+</body>
+</html>

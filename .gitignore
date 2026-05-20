@@ -1,0 +1,6 @@
+# Root level gitignore
+.idea/
+.vscode/
+
+# Ignore node_modules for the web project
+/smart-remote/node_modules/

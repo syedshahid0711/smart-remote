@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <title>TV Remote</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0B0620;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;-webkit-tap-highlight-color:transparent}
+    .app{max-width:480px;margin:0 auto}
+    .phdr{display:flex;align-items:center;gap:12px;padding:16px 20px;background:#0F0826;border-bottom:1px solid #2D1B69;position:sticky;top:0;z-index:100}
+    .bbtn{width:40px;height:40px;border-radius:12px;background:#1A1040;border:1px solid #2D1B69;display:flex;align-items:center;justify-content:center;color:#7B6BA5;cursor:pointer}
+    .bbtn svg{width:18px;height:18px}
+    .ptitle{font-size:16px;font-weight:700}
+    .psub{font-size:11px;color:#7B6BA5}
+    .ppwr{margin-left:auto}
+    .pwrbtn{width:44px;height:44px;border-radius:50%;border:2px solid #FF3355;background:none;display:flex;align-items:center;justify-content:center;color:#FF3355;cursor:pointer}
+    .pwrbtn svg{width:20px;height:20px}
+    .mc{padding:16px;display:flex;flex-direction:column;gap:16px}
+    .gcard{background:#130D2B;border:1px solid #2D1B69;border-radius:20px;padding:18px}
+    .gcard-title{font-size:11px;font-weight:700;letter-spacing:1.5px;color:#CDBEEF;margin-bottom:14px}
+    /* Volume/Channel row */
+    .vc-row{display:flex;justify-content:space-between;align-items:center;gap:16px}
+    .vc-col{display:flex;flex-direction:column;align-items:center;gap:6px}
+    .vc-btn{width:50px;height:50px;border-radius:14px;background:#1A1040;border:1px solid #2D1B69;display:flex;align-items:center;justify-content:center;font-size:20px;color:#fff;cursor:pointer}
+    .vc-btn:active{background:#2D1B69}
+    .vc-lbl{font-size:10px;color:#7B6BA5}
+    .mute-btn{width:50px;height:50px;border-radius:50%;background:#1A1040;border:1px solid #2D1B69;display:flex;align-items:center;justify-content:center;font-size:18px;color:#FF4D79;cursor:pointer}
+    /* D-Pad */
+    .dpad{display:flex;flex-direction:column;align-items:center;gap:6px;padding:10px 0}
+    .dpad-row{display:flex;gap:6px;align-items:center}
+    .dpad-btn{width:56px;height:56px;border-radius:14px;background:#1A1040;border:1px solid #2D1B69;display:flex;align-items:center;justify-content:center;font-size:18px;color:#fff;cursor:pointer}
+    .dpad-btn:active{background:#2D1B69}
+    .dpad-ok{width:56px;height:56px;border-radius:50%;background:linear-gradient(135deg,#4D79FF,#A555EC);border:none;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:700;color:#fff;cursor:pointer;box-shadow:0 0 15px rgba(77,121,255,0.3)}
+    /* Nav buttons */
+    .nav-row{display:flex;justify-content:center;gap:10px}
+    .nav-btn{flex:1;max-width:100px;padding:12px 8px;border-radius:12px;background:#1A1040;border:1px solid #2D1B69;display:flex;flex-direction:column;align-items:center;gap:4px;font-size:10px;color:#7B6BA5;cursor:pointer}
+    .nav-btn:active{background:#2D1B69;color:#4D79FF}
+    .nav-btn span:first-child{font-size:16px}
+    /* Number Pad */
+    .numpad{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .num-btn{padding:14px;border-radius:12px;background:#1A1040;border:1px solid #2D1B69;color:#fff;font-size:18px;font-weight:700;text-align:center;cursor:pointer}
+    .num-btn:active{background:#2D1B69;color:#4D79FF}
+    /* Input/Source */
+    .input-btn{width:100%;padding:12px;border-radius:12px;background:#1A1040;border:1px solid #2D1B69;color:#CDBEEF;font-size:13px;font-weight:600;cursor:pointer;text-align:center}
+    .input-btn:active{background:rgba(77,121,255,0.15);border-color:#4D79FF}
+    .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(165,85,236,0.9);padding:10px 24px;border-radius:25px;font-size:13px;font-weight:600;z-index:1000;color:#fff}
+    .toast.hidden{display:none}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="phdr">
+    <button class="bbtn" onclick="history.back()"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg></button>
+    <div><div class="ptitle" id="tv-title">TV Remote</div><div class="psub" id="tv-brand">--</div></div>
+    <div class="ppwr"><button class="pwrbtn" onclick="sendCmd('power')"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg></button></div>
+  </div>
+
+  <div class="mc">
+    <!-- Volume & Channel -->
+    <div class="gcard">
+      <div class="gcard-title">VOLUME & CHANNEL</div>
+      <div class="vc-row">
+        <div class="vc-col">
+          <button class="vc-btn" onclick="sendCmd('volUp')">＋</button>
+          <div class="vc-lbl">VOL</div>
+          <button class="vc-btn" onclick="sendCmd('volDn')">－</button>
+        </div>
+        <button class="mute-btn" onclick="sendCmd('mute')">🔇</button>
+        <div class="vc-col">
+          <button class="vc-btn" onclick="sendCmd('chUp')">▲</button>
+          <div class="vc-lbl">CH</div>
+          <button class="vc-btn" onclick="sendCmd('chDn')">▼</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- D-Pad Navigation -->
+    <div class="gcard">
+      <div class="gcard-title">NAVIGATION</div>
+      <div class="dpad">
+        <div class="dpad-row"><div style="width:56px"></div><button class="dpad-btn" onclick="sendCmd('up')">▲</button><div style="width:56px"></div></div>
+        <div class="dpad-row"><button class="dpad-btn" onclick="sendCmd('left')">◀</button><button class="dpad-ok" onclick="sendCmd('ok')">OK</button><button class="dpad-btn" onclick="sendCmd('right')">▶</button></div>
+        <div class="dpad-row"><div style="width:56px"></div><button class="dpad-btn" onclick="sendCmd('down')">▼</button><div style="width:56px"></div></div>
+      </div>
+      <div class="nav-row">
+        <button class="nav-btn" onclick="sendCmd('back')"><span>↩️</span>Back</button>
+        <button class="nav-btn" onclick="sendCmd('home')"><span>🏠</span>Home</button>
+        <button class="nav-btn" onclick="sendCmd('menu')"><span>☰</span>Menu</button>
+      </div>
+    </div>
+
+    <!-- Input Source -->
+    <button class="input-btn" onclick="sendCmd('input')">📡 Input / Source</button>
+
+    <!-- Number Pad -->
+    <div class="gcard">
+      <div class="gcard-title">NUMBER PAD</div>
+      <div class="numpad">
+        <button class="num-btn" onclick="sendCmd('n1')">1</button>
+        <button class="num-btn" onclick="sendCmd('n2')">2</button>
+        <button class="num-btn" onclick="sendCmd('n3')">3</button>
+        <button class="num-btn" onclick="sendCmd('n4')">4</button>
+        <button class="num-btn" onclick="sendCmd('n5')">5</button>
+        <button class="num-btn" onclick="sendCmd('n6')">6</button>
+        <button class="num-btn" onclick="sendCmd('n7')">7</button>
+        <button class="num-btn" onclick="sendCmd('n8')">8</button>
+        <button class="num-btn" onclick="sendCmd('n9')">9</button>
+        <div></div>
+        <button class="num-btn" onclick="sendCmd('n0')">0</button>
+        <div></div>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script src="../data/ir-codes.js"></script>
+<script>
+// Get device info from URL params
+var params = new URLSearchParams(window.location.search);
+var devId = params.get('id');
+var devices = JSON.parse(localStorage.getItem('smartnova_devices')||'[]');
+var dev = devices.find(function(d){return d.id===devId}) || {brand:'lg',name:'TV',brandName:'LG'};
+var codes = IR_DB.tv[dev.brand] || IR_DB.tv.lg;
+
+document.getElementById('tv-title').textContent = dev.name;
+document.getElementById('tv-brand').textContent = dev.brandName;
+
+function sendCmd(cmd) {
+  var code = codes[cmd];
+  if (!code) { showToast('Command not available'); return; }
+  showToast('📡 ' + cmd.toUpperCase());
+  vib(20);
+  if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.IRBlaster) {
+    var pattern = IR_DB.necToPattern(code);
+    window.Capacitor.Plugins.IRBlaster.transmit({frequency:38000,pattern:pattern})
+    .then(function(){console.log('Sent: '+cmd)})
+    .catch(function(e){showToast('IR Failed: '+e.message)});
+  }
+}
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.className='toast';clearTimeout(t._t);t._t=setTimeout(function(){t.className='toast hidden'},2500)}
+function vib(p){try{navigator.vibrate(p)}catch(e){}}
+</script>
+</body>
+</html>

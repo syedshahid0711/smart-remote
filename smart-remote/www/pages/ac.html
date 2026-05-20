@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0"/>
+  <title>SmartNova | AC Remote</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0B0620;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;-webkit-tap-highlight-color:transparent}
+    .app{max-width:480px;margin:0 auto}
+    .phdr{display:flex;align-items:center;gap:12px;padding:16px 20px;background:#0F0826;border-bottom:1px solid #2D1B69;position:sticky;top:0;z-index:100}
+    .bbtn{width:40px;height:40px;border-radius:12px;background:#1A1040;border:1px solid #2D1B69;display:flex;align-items:center;justify-content:center;color:#7B6BA5;cursor:pointer}
+    .bbtn svg{width:18px;height:18px}
+    .ptitle{font-size:16px;font-weight:700}
+    .psub{font-size:11px;color:#7B6BA5}
+    .ppwr{margin-left:auto}
+    .pwrbtn{width:44px;height:44px;border-radius:50%;border:2px solid #7B6BA5;background:none;display:flex;align-items:center;justify-content:center;color:#7B6BA5;cursor:pointer}
+    .pwrbtn svg{width:20px;height:20px}
+    .pwrbtn.on{border-color:#4D79FF;color:#4D79FF;box-shadow:0 0 15px rgba(77,121,255,0.4)}
+    .mc{padding:16px 16px 30px;display:flex;flex-direction:column;gap:16px}
+    /* Temp Display */
+    .tdsp{text-align:center;padding:24px 16px;background:#130D2B;border:1px solid #2D1B69;border-radius:20px}
+    .tring{position:relative;width:160px;height:160px;margin:0 auto 14px}
+    .tring svg{width:160px;height:160px;display:block}
+    .tring-lbl{position:absolute;top:0;left:0;width:160px;height:160px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .tnum{font-size:48px;font-weight:900;color:#4D79FF;line-height:1}
+    .tunit{font-size:16px;color:#7B6BA5}
+    .tctrl{display:flex;align-items:center;justify-content:center;gap:24px;margin-top:10px}
+    .tbtn{width:50px;height:50px;border-radius:50%;background:#1A1040;border:2px solid #2D1B69;color:#fff;font-size:22px;display:flex;align-items:center;justify-content:center;cursor:pointer}
+    .tbtn:active{background:#2D1B69}
+    .tinfo{text-align:center}
+    .tinfo-lbl{font-size:12px;color:#7B6BA5}
+    .tinfo-mode{font-size:13px;color:#4D79FF;margin-top:4px}
+    /* Section Label */
+    .slbl{font-size:11px;font-weight:700;color:#CDBEEF;letter-spacing:1.5px;text-transform:uppercase}
+    /* Mode Grid */
+    .mgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}
+    .mbtn{display:flex;flex-direction:column;align-items:center;gap:6px;background:#1A1040;border:1px solid transparent;border-radius:12px;padding:14px 6px;color:#7B6BA5;font-size:11px;cursor:pointer}
+    .mbtn span:first-child{font-size:22px}
+    .mbtn.active{background:rgba(77,121,255,0.15);border-color:#4D79FF;color:#4D79FF}
+    /* Speed Grid */
+    .sgrid{display:grid;grid-template-columns:repeat(5,1fr);gap:6px}
+    .sbtn{background:#1A1040;border:1px solid transparent;border-radius:10px;padding:12px 4px;color:#7B6BA5;font-size:12px;cursor:pointer;text-align:center}
+    .sbtn.active{background:rgba(77,121,255,0.15);border-color:#4D79FF;color:#4D79FF}
+    /* Toggle Buttons */
+    .bg3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:8px}
+    .rbtn{display:flex;align-items:center;justify-content:center;background:#1A1040;border:1px solid transparent;border-radius:12px;padding:14px 8px;color:#7B6BA5;font-size:11px;cursor:pointer;text-align:center}
+    .rbtn.active{background:rgba(165,85,236,0.15);border-color:#A555EC;color:#A555EC}
+    /* Timer */
+    .trow{display:flex;align-items:center;justify-content:space-between;background:#130D2B;border:1px solid #2D1B69;border-radius:12px;padding:14px 16px;margin-bottom:8px}
+    .trow-lbl{font-size:13px;color:#7B6BA5}
+    .tctrls{display:flex;align-items:center;gap:12px}
+    .tval{font-size:16px;color:#4D79FF;font-weight:700;min-width:60px;text-align:center}
+    .trbtn{width:32px;height:32px;border-radius:50%;background:#1A1040;border:1px solid #2D1B69;color:#fff;cursor:pointer;display:flex;align-items:center;justify-content:center;font-size:16px}
+    /* Toast */
+    .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(165,85,236,0.9);padding:10px 24px;border-radius:25px;font-size:13px;font-weight:600;z-index:1000;color:#fff}
+    .toast.hidden{display:none}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="phdr">
+    <button class="bbtn" onclick="history.back()">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M19 12H5M12 5l-7 7 7 7"/></svg>
+    </button>
+    <div><div class="ptitle" id="ac-page-title">AC Remote</div><div class="psub" id="ac-page-sub">Loading...</div></div>
+    <div class="ppwr">
+      <button class="pwrbtn" id="power-btn" onclick="togglePower()">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M18.36 6.64a9 9 0 1 1-12.73 0"/><line x1="12" y1="2" x2="12" y2="12"/></svg>
+      </button>
+    </div>
+  </div>
+  <div class="mc">
+    <div class="tdsp">
+      <div class="tring">
+        <svg viewBox="0 0 160 160" width="160" height="160">
+          <defs><linearGradient id="acGrad" x1="0%" y1="0%" x2="100%"><stop offset="0%" stop-color="#4D79FF"/><stop offset="100%" stop-color="#A555EC"/></linearGradient></defs>
+          <circle cx="80" cy="80" r="65" stroke="#1A1040" stroke-width="10" fill="none"/>
+          <circle cx="80" cy="80" r="65" stroke="url(#acGrad)" stroke-width="10" fill="none"
+            id="temp-arc" stroke-dasharray="408" stroke-dashoffset="200" stroke-linecap="round" transform="rotate(-90 80 80)"/>
+        </svg>
+        <div class="tring-lbl">
+          <div class="tnum" id="temp-num">24</div>
+          <div class="tunit">°C</div>
+        </div>
+      </div>
+      <div class="tctrl">
+        <button class="tbtn" onclick="changeTemp(-1)">－</button>
+        <div class="tinfo"><div class="tinfo-lbl">Temperature</div><div class="tinfo-mode" id="temp-mode-label">Cool Mode</div></div>
+        <button class="tbtn" onclick="changeTemp(1)">＋</button>
+      </div>
+    </div>
+    <p class="slbl">Mode</p>
+    <div class="mgrid">
+      <button class="mbtn active" id="mode-cool" onclick="setMode('cool')"><span>❄️</span><span>Cool</span></button>
+      <button class="mbtn" id="mode-dry" onclick="setMode('dry')"><span>💧</span><span>Dry</span></button>
+      <button class="mbtn" id="mode-fan" onclick="setMode('fan')"><span>🌀</span><span>Fan</span></button>
+    </div>
+    <p class="slbl">Fan Speed</p>
+    <div class="sgrid">
+      <button class="sbtn active" id="speed-auto" onclick="setSpeed('auto')">Auto</button>
+      <button class="sbtn" id="speed-1" onclick="setSpeed('1')">Low</button>
+      <button class="sbtn" id="speed-2" onclick="setSpeed('2')">Med</button>
+      <button class="sbtn" id="speed-3" onclick="setSpeed('3')">High</button>
+      <button class="sbtn" id="speed-turbo" onclick="setSpeed('turbo')">Turbo</button>
+    </div>
+    <div class="bg3">
+      <button class="rbtn" id="swing-btn" onclick="toggleSwing()">🔄 Swing OFF</button>
+      <button class="rbtn" id="sleep-btn" onclick="toggleSleep()">🌙 Sleep OFF</button>
+      <button class="rbtn" id="display-btn" onclick="toggleDisplay()">💡 Display ON</button>
+    </div>
+    <p class="slbl">Auto Timers</p>
+    <div class="trow">
+      <span class="trow-lbl">⏱️ Turn OFF in</span>
+      <div class="tctrls">
+        <button class="trbtn" onclick="changeTimerOff(-1)">－</button>
+        <div class="tval" id="timer-off-val">OFF</div>
+        <button class="trbtn" onclick="changeTimerOff(1)">＋</button>
+      </div>
+    </div>
+    <div class="trow">
+      <span class="trow-lbl">⏱️ Turn ON in</span>
+      <div class="tctrls">
+        <button class="trbtn" onclick="changeTimerOn(-1)">－</button>
+        <div class="tval" id="timer-on-val">OFF</div>
+        <button class="trbtn" onclick="changeTimerOn(1)">＋</button>
+      </div>
+    </div>
+    <div id="timer-countdown" class="trow" style="display:none">
+      <span id="countdown-label" class="trow-lbl" style="color:#FF6B35">⏳ Remaining</span>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="tval" id="countdown-val" style="color:#FF6B35">--:--:--</div>
+        <button class="trbtn" onclick="cancelTimer()" style="border-color:#FF3355;color:#FF3355">✕</button>
+      </div>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast hidden"></div>
+<script>
+// Read device info from URL
+var params = new URLSearchParams(window.location.search);
+var devId = params.get('id');
+var devBrand = params.get('brand') || 'lg';
+var devices = JSON.parse(localStorage.getItem('smartnova_devices')||'[]');
+var devInfo = devices.find(function(d){return d.id===devId});
+if(devInfo){
+  document.getElementById('ac-page-title').textContent = devInfo.name;
+  document.getElementById('ac-page-sub').textContent = devInfo.brandName + ' Air Conditioner';
+} else {
+  document.getElementById('ac-page-title').textContent = 'AC Remote';
+  document.getElementById('ac-page-sub').textContent = 'LG Air Conditioner';
+}
+
+// LG AC IR Protocol
+var st = JSON.parse(localStorage.getItem('smartnova_state') || '{}');
+var ac = (st.devices && st.devices.ac) ? st.devices.ac : {on:false, temp:24, mode:'cool', fanSpeed:'auto', swing:false, sleep:false, timerOff:0, timerOn:0, displayOn:true};
+var cfg = st.settings || {sound:true, vibration:true};
+var LG_MODE = { cool:0, dry:1, fan:2, auto:3, heat:4 };
+var LG_FAN  = { auto:5, '1':1, '2':2, '3':4, turbo:4 };
+var LG_OFF_CMD = 0x88C0051;
+var LG_SWING_CMD = 0x8810001;
+var LG_DISPLAY_CMD = 0x88C00A6;
+
+function buildLgAcCode() {
+  var n4=0,n3=LG_MODE[ac.mode]||0,n2=Math.max(0,Math.min(15,ac.temp-15)),n1=LG_FAN[ac.fanSpeed]||5;
+  var n0=(8+8+n4+n3+n2+n1)&0xF;
+  return (0x88<<20)|(n4<<16)|(n3<<12)|(n2<<8)|(n1<<4)|n0;
+}
+function codeToPattern(code) {
+  var bits=code.toString(2).padStart(28,'0'),p=[8500,4250];
+  for(var i=0;i<bits.length;i++){p.push(550);p.push(bits[i]==='1'?1600:550);}
+  p.push(550);p.push(10000);return p;
+}
+async function blastIR(code) {
+  if(!window.Capacitor||!window.Capacitor.Plugins||!window.Capacitor.Plugins.IRBlaster)return;
+  try{var p=codeToPattern(code);await window.Capacitor.Plugins.IRBlaster.transmit({frequency:38000,pattern:p});console.log('Blasted: 0x'+code.toString(16).toUpperCase());}catch(e){showToast('IR Failed: '+e.message);}
+}
+function save(){if(!st.devices)st.devices={};st.devices.ac=ac;localStorage.setItem('smartnova_state',JSON.stringify(st))}
+function syncDisplay(){
+  document.getElementById('temp-num').textContent=ac.temp;
+  document.getElementById('power-btn').className=ac.on?'pwrbtn on':'pwrbtn';
+  var off=408-Math.round((ac.temp-16)/(30-16)*280);
+  document.getElementById('temp-arc').setAttribute('stroke-dashoffset',off);
+  document.getElementById('temp-mode-label').textContent=ac.mode.charAt(0).toUpperCase()+ac.mode.slice(1)+' Mode';
+  document.getElementById('timer-off-val').textContent=ac.timerOff?ac.timerOff+' hr':'OFF';
+  document.getElementById('timer-on-val').textContent=ac.timerOn?ac.timerOn+' hr':'OFF';
+  document.getElementById('swing-btn').textContent='🔄 Swing '+(ac.swing?'ON':'OFF');
+  document.getElementById('swing-btn').className=ac.swing?'rbtn active':'rbtn';
+  document.getElementById('sleep-btn').textContent='🌙 Sleep '+(ac.sleep?'ON':'OFF');
+  document.getElementById('sleep-btn').className=ac.sleep?'rbtn active':'rbtn';
+  document.getElementById('display-btn').textContent='💡 Display '+(ac.displayOn?'ON':'OFF');
+  document.getElementById('display-btn').className=ac.displayOn?'rbtn active':'rbtn';
+}
+function togglePower(){cancelTimer();ac.on=!ac.on;syncDisplay();if(ac.on){blastIR(buildLgAcCode())}else{blastIR(LG_OFF_CMD)}showToast('❄️ AC '+(ac.on?'ON':'OFF'));vib(30);click();save()}
+function changeTemp(d){if(!ac.on)return;ac.temp=Math.max(16,Math.min(30,ac.temp+d));syncDisplay();blastIR(buildLgAcCode());click();vib(15);save()}
+function setMode(m){if(!ac.on)return;ac.mode=m;document.querySelectorAll('.mbtn').forEach(function(b){b.classList.remove('active')});document.getElementById('mode-'+m).classList.add('active');syncDisplay();blastIR(buildLgAcCode());showToast('Mode: '+m);click();vib(20);save()}
+function setSpeed(s){if(!ac.on)return;ac.fanSpeed=s;document.querySelectorAll('.sbtn').forEach(function(b){b.classList.remove('active')});document.getElementById('speed-'+s).classList.add('active');blastIR(buildLgAcCode());showToast('Fan: '+s);click();vib(20);save()}
+function toggleSwing(){if(!ac.on)return;ac.swing=!ac.swing;syncDisplay();blastIR(LG_SWING_CMD);click();vib(20);save()}
+function toggleSleep(){if(!ac.on)return;ac.sleep=!ac.sleep;syncDisplay();showToast('🌙 Sleep '+(ac.sleep?'ON':'OFF'));click();vib(20);save()}
+function toggleDisplay(){if(!ac.on)return;ac.displayOn=!ac.displayOn;syncDisplay();blastIR(LG_DISPLAY_CMD);showToast('💡 Display '+(ac.displayOn?'ON':'OFF'));click();vib(20);save()}
+
+var timerInterval=null,timerEndTime=null,timerType=null;
+function changeTimerOff(d){if(!ac.on)return showToast("Turn AC ON first");if(timerType==='ON')cancelTimer();ac.timerOff=Math.max(0,Math.min(24,ac.timerOff+d));document.getElementById('timer-off-val').textContent=ac.timerOff?ac.timerOff+' hr':'OFF';if(ac.timerOff>0&&!timerInterval)startTimer('OFF',ac.timerOff);else if(ac.timerOff===0)cancelTimer();else if(timerInterval)timerEndTime=Date.now()+(ac.timerOff*3600000);click();save()}
+function changeTimerOn(d){if(ac.on)return showToast("Turn AC OFF first");if(timerType==='OFF')cancelTimer();ac.timerOn=Math.max(0,Math.min(24,ac.timerOn+d));document.getElementById('timer-on-val').textContent=ac.timerOn?ac.timerOn+' hr':'OFF';if(ac.timerOn>0&&!timerInterval)startTimer('ON',ac.timerOn);else if(ac.timerOn===0)cancelTimer();else if(timerInterval)timerEndTime=Date.now()+(ac.timerOn*3600000);click();save()}
+function startTimer(type,hours){timerType=type;timerEndTime=Date.now()+(hours*3600000);document.getElementById('countdown-label').textContent=type==='ON'?'⏳ Turning ON in':'⏳ Turning OFF in';document.getElementById('timer-countdown').style.display='flex';timerInterval=setInterval(function(){var r=timerEndTime-Date.now();if(r<=0){var tt=timerType;cancelTimer();ac.on=(tt==='ON');syncDisplay();if(ac.on){blastIR(buildLgAcCode());showToast('⏱️ AC turned ON')}else{blastIR(LG_OFF_CMD);showToast('⏱️ AC turned OFF')}vib([100,50,100]);save();return}var h=Math.floor(r/3600000),m=Math.floor((r%3600000)/60000),s=Math.floor((r%60000)/1000);document.getElementById('countdown-val').textContent=(h<10?'0':'')+h+':'+(m<10?'0':'')+m+':'+(s<10?'0':'')+s},1000)}
+function cancelTimer(){if(timerInterval)clearInterval(timerInterval);timerInterval=null;timerEndTime=null;timerType=null;ac.timerOff=0;ac.timerOn=0;document.getElementById('timer-off-val').textContent='OFF';document.getElementById('timer-on-val').textContent='OFF';document.getElementById('timer-countdown').style.display='none';save()}
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.className='toast';clearTimeout(t._t);t._t=setTimeout(function(){t.className='toast hidden'},2500)}
+function vib(p){try{navigator.vibrate(p)}catch(e){}}
+function click(){if(!cfg.sound)return;try{var c=new(window.AudioContext||window.webkitAudioContext)(),o=c.createOscillator(),g=c.createGain();o.connect(g);g.connect(c.destination);o.frequency.value=660;g.gain.setValueAtTime(.07,c.currentTime);g.gain.exponentialRampToValueAtTime(.001,c.currentTime+.1);o.start();o.stop(c.currentTime+.1)}catch(e){}}
+syncDisplay();
+</script>
+</body>
+</html>

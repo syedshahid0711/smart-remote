@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=1.0,user-scalable=no"/>
+  <meta name="theme-color" content="#0B0620"/>
+  <title>SmartNova</title>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{background:#0B0620;color:#fff;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;min-height:100vh;-webkit-tap-highlight-color:transparent}
+    .app{max-width:480px;margin:0 auto;padding:0 16px 100px}
+    .hdr{display:flex;align-items:center;padding:16px 0 12px}
+    .hdr-grid{width:40px;height:40px;border-radius:12px;background:#1A1040;border:1px solid #2D1B69;display:flex;align-items:center;justify-content:center}
+    .hdr-grid svg{width:18px;height:18px;fill:#7B6BA5}
+    .hdr-text{flex:1;margin-left:12px}
+    .hdr-text h1{font-size:18px;font-weight:700;color:#fff}
+    .hdr-text p{font-size:12px;color:#7B6BA5}
+    .spill{display:flex;align-items:center;justify-content:space-between;background:#1A1040;border:1px solid #2D1B69;border-radius:25px;padding:10px 16px;margin-bottom:16px}
+    .spill-left{display:flex;align-items:center;gap:8px}
+    .spill-dot{width:8px;height:8px;border-radius:50%;background:#A555EC;box-shadow:0 0 8px #A555EC}
+    .spill-txt{font-size:12px;color:#7B6BA5}
+    .spill-right{display:flex;align-items:center;gap:8px}
+    .spill-bar{width:30px;height:4px;background:#222;border-radius:2px;overflow:hidden}
+    .spill-fill{width:100%;height:100%;background:#A555EC;border-radius:2px}
+    .spill-pct{font-size:12px;color:#7B6BA5}
+    .gcard{background:#130D2B;border:1px solid #2D1B69;border-radius:20px;padding:18px;margin-bottom:16px}
+    .gcard-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:16px}
+    .gcard-title{font-size:12px;font-weight:700;letter-spacing:1.5px;color:#CDBEEF}
+    .gcard-badge{font-size:12px;font-weight:600;font-style:italic}
+    .env-row{display:flex;align-items:center;gap:16px}
+    .dial-box{width:140px;height:140px;position:relative;flex-shrink:0}
+    .dial-box svg{width:140px;height:140px;display:block}
+    .dial-center{position:absolute;top:0;left:0;width:140px;height:140px;display:flex;flex-direction:column;align-items:center;justify-content:center}
+    .dial-icon{font-size:14px;margin-bottom:2px}
+    .dial-val{font-size:28px;font-weight:800;color:#fff;line-height:1}
+    .dial-unit{font-size:14px;color:#ccc;font-weight:400}
+    .dial-lbl{font-size:10px;color:#7B6BA5;margin-top:4px}
+    .mstack{flex:1;display:flex;flex-direction:column;gap:8px}
+    .mcard{background:#1A1040;border-radius:12px;padding:10px 12px;display:flex;align-items:center;gap:10px}
+    .mcard-ico{font-size:18px;width:32px;height:32px;border-radius:8px;background:#0F0826;display:flex;align-items:center;justify-content:center}
+    .mcard-v{font-size:14px;font-weight:700;color:#fff}
+    .mcard-l{font-size:10px;color:#7B6BA5}
+    .env-loading{text-align:center;padding:20px;color:#7B6BA5;font-size:12px}
+    .env-loc{font-size:10px;color:#7B6BA5;text-align:center;margin-top:10px}
+    /* Section label */
+    .slbl{font-size:11px;font-weight:700;color:#CDBEEF;letter-spacing:1.5px;text-transform:uppercase;margin-bottom:12px}
+    /* Device Cards */
+    .dev-list{display:flex;flex-direction:column;gap:10px;margin-bottom:16px}
+    .dev-card{display:flex;align-items:center;gap:14px;background:#130D2B;border:1px solid #2D1B69;border-radius:16px;padding:14px 16px;cursor:pointer;transition:0.2s}
+    .dev-card:active{transform:scale(0.98)}
+    .dev-card.on{border-color:#4D79FF;box-shadow:0 0 12px rgba(77,121,255,0.15)}
+    .dev-icon{font-size:24px;width:44px;height:44px;border-radius:12px;background:#1A1040;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .dev-info{flex:1}
+    .dev-name{font-size:14px;font-weight:600;margin-bottom:2px}
+    .dev-meta{font-size:11px;color:#7B6BA5}
+    .dev-arrow{color:#7B6BA5;font-size:18px}
+    .dev-del{width:32px;height:32px;border-radius:8px;background:#1A1040;border:1px solid #2D1B69;display:flex;align-items:center;justify-content:center;color:#FF3355;font-size:14px;cursor:pointer}
+    .dev-del:active{background:#FF3355;color:#fff}
+    /* Add Device Button */
+    .add-btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;padding:16px;background:#1A1040;border:2px dashed #2D1B69;border-radius:16px;color:#7B6BA5;font-size:14px;font-weight:600;cursor:pointer;margin-bottom:16px;transition:0.2s}
+    .add-btn:active{border-color:#4D79FF;color:#4D79FF}
+    .add-ico{font-size:24px}
+    /* Empty State */
+    .empty{text-align:center;padding:30px;color:#7B6BA5}
+    .empty-ico{font-size:48px;margin-bottom:12px}
+    .empty-title{font-size:16px;font-weight:700;color:#CDBEEF;margin-bottom:8px}
+    .empty-sub{font-size:12px;line-height:1.5}
+    /* Bottom Nav */
+    .bnav{position:fixed;bottom:0;left:50%;transform:translateX(-50%);width:100%;max-width:480px;height:70px;background:#0F0826;border-top:1px solid #2D1B69;display:flex;align-items:center;justify-content:space-around;z-index:100}
+    .nb{display:flex;flex-direction:column;align-items:center;gap:4px;color:#7B6BA5;font-size:10px;cursor:pointer;background:none;border:none}
+    .nb svg{width:22px;height:22px}
+    .nb.active{color:#FF4D79}
+    .toast{position:fixed;top:20px;left:50%;transform:translateX(-50%);background:rgba(165,85,236,0.9);padding:10px 24px;border-radius:25px;font-size:13px;font-weight:600;z-index:1000;color:#fff}
+    .toast.hidden{display:none}
+    /* Delete confirm overlay */
+    .del-overlay{position:fixed;inset:0;background:rgba(0,0,0,0.8);z-index:200;display:flex;align-items:center;justify-content:center}
+    .del-overlay.hidden{display:none}
+    .del-card{background:#130D2B;border:1px solid #2D1B69;border-radius:20px;padding:24px;width:85%;max-width:350px;text-align:center}
+    .del-card h3{margin-bottom:8px;font-size:16px}
+    .del-card p{font-size:12px;color:#7B6BA5;margin-bottom:20px}
+    .del-btns{display:flex;gap:10px}
+    .del-btns button{flex:1;padding:12px;border-radius:12px;border:none;font-size:14px;font-weight:700;cursor:pointer}
+    .del-cancel{background:#1A1040;color:#7B6BA5;border:1px solid #2D1B69}
+    .del-confirm{background:#FF3355;color:#fff}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="hdr">
+    <div class="hdr-grid"><svg viewBox="0 0 24 24"><path d="M4 4h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 10h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4zM4 16h4v4H4zm6 0h4v4h-4zm6 0h4v4h-4z"/></svg></div>
+    <div class="hdr-text"><h1>SmartNova</h1><p>Climate Control</p></div>
+  </div>
+  <div class="spill">
+    <div class="spill-left"><div class="spill-dot"></div><span class="spill-txt">IR Blaster Ready</span></div>
+    <div class="spill-right"><div class="spill-bar"><div class="spill-fill"></div></div><span class="spill-pct">100%</span></div>
+  </div>
+
+  <!-- ROOM ENVIRONMENT (REAL-TIME) -->
+  <div class="gcard">
+    <div class="gcard-hdr"><span class="gcard-title">ROOM ENVIRONMENT</span><span class="gcard-badge" id="env-status" style="color:#A555EC">Loading...</span></div>
+    <div id="env-loading" class="env-loading">📡 Fetching live data from your location...</div>
+    <div id="env-content" style="display:none">
+      <div class="env-row">
+        <div class="dial-box">
+          <svg viewBox="0 0 140 140" width="140" height="140">
+            <defs><linearGradient id="dg" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" stop-color="#FF4D79"/><stop offset="50%" stop-color="#A555EC"/><stop offset="100%" stop-color="#4D79FF"/></linearGradient></defs>
+            <circle cx="70" cy="70" r="58" stroke="#1A1040" stroke-width="8" fill="none"/>
+            <circle cx="70" cy="70" r="48" stroke="#2D1B69" stroke-width="2" fill="none" stroke-dasharray="4 6" opacity="0.4"/>
+            <circle cx="70" cy="70" r="58" stroke="url(#dg)" stroke-width="8" fill="none" id="temp-arc" stroke-dasharray="270" stroke-dashoffset="45" stroke-linecap="round" transform="rotate(135 70 70)"/>
+          </svg>
+          <div class="dial-center"><span class="dial-icon">🌡️</span><div class="dial-val" id="env-temp">--<span class="dial-unit">°C</span></div><div class="dial-lbl">Temperature</div></div>
+        </div>
+        <div class="mstack">
+          <div class="mcard"><div class="mcard-ico">💧</div><div><div class="mcard-v" id="env-hum">--%</div><div class="mcard-l">Humidity</div></div></div>
+          <div class="mcard"><div class="mcard-ico">🍃</div><div><div class="mcard-v" id="env-aqi">-- AQI</div><div class="mcard-l">Air Quality</div></div></div>
+          <div class="mcard"><div class="mcard-ico">💨</div><div><div class="mcard-v" id="env-air">--</div><div class="mcard-l">Air Status</div></div></div>
+        </div>
+      </div>
+      <div class="env-loc" id="env-loc">📍 Locating...</div>
+    </div>
+  </div>
+
+  <!-- MY DEVICES -->
+  <p class="slbl">MY DEVICES</p>
+  <div class="dev-list" id="dev-list"></div>
+  <div class="add-btn" onclick="location.href='pages/add-device.html'">
+    <span class="add-ico">＋</span> Add New Device
+  </div>
+</div>
+
+<!-- BOTTOM NAV -->
+<div class="bnav">
+  <button class="nb active"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span>Dashboard</span></button>
+  <button class="nb" onclick="location.href='pages/add-device.html'"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg><span>Add Device</span></button>
+</div>
+
+<!-- Delete Confirm -->
+<div class="del-overlay hidden" id="del-overlay">
+  <div class="del-card">
+    <h3>🗑️ Remove Device?</h3>
+    <p id="del-name">This device will be removed from your dashboard.</p>
+    <div class="del-btns">
+      <button class="del-cancel" onclick="cancelDel()">Cancel</button>
+      <button class="del-confirm" onclick="confirmDel()">Remove</button>
+    </div>
+  </div>
+</div>
+
+<div id="toast" class="toast hidden"></div>
+<script>
+// ====== REAL-TIME ENVIRONMENT ======
+async function fetchEnvData(){
+  try {
+    var pos;
+    if (window.Capacitor && window.Capacitor.Plugins && window.Capacitor.Plugins.Geolocation) {
+      try {
+        pos = await window.Capacitor.Plugins.Geolocation.getCurrentPosition({enableHighAccuracy:true, timeout:10000});
+      } catch(e) {
+        // If permission denied or other error, try requesting permission first (Capacitor 3+)
+        if(window.Capacitor.Plugins.Geolocation.requestPermissions) {
+          await window.Capacitor.Plugins.Geolocation.requestPermissions();
+          pos = await window.Capacitor.Plugins.Geolocation.getCurrentPosition({enableHighAccuracy:true, timeout:10000});
+        } else {
+          throw e;
+        }
+      }
+    } else if (navigator.geolocation) {
+      pos = await new Promise(function(resolve, reject) {
+        navigator.geolocation.getCurrentPosition(resolve, reject, {enableHighAccuracy:true, timeout:10000});
+      });
+    } else {
+      document.getElementById('env-loading').textContent='❌ Location not available';
+      return;
+    }
+    
+    var lat=pos.coords.latitude.toFixed(2),lon=pos.coords.longitude.toFixed(2);
+    fetch('https://api.open-meteo.com/v1/forecast?latitude='+lat+'&longitude='+lon+'&current=temperature_2m,relative_humidity_2m,weather_code&timezone=auto')
+    .then(function(r){return r.json()})
+    .then(function(w){
+      var temp=w.current.temperature_2m,hum=w.current.relative_humidity_2m;
+      document.getElementById('env-temp').innerHTML=temp+'<span class="dial-unit">°C</span>';
+      document.getElementById('env-hum').textContent=hum+'%';
+      var pct=Math.min(1,Math.max(0,(temp-0)/50));
+      document.getElementById('temp-arc').setAttribute('stroke-dashoffset',270-(pct*270));
+      var badge='Optimal',bc='#00E676';
+      if(temp>35||hum>80){badge='Warning';bc='#FF6B35'}
+      if(temp>40||hum>90){badge='Critical';bc='#FF3355'}
+      document.getElementById('env-status').textContent=badge;
+      document.getElementById('env-status').style.color=bc;
+      document.getElementById('env-loc').textContent='📍 Live • '+lat+', '+lon;
+      fetch('https://air-quality-api.open-meteo.com/v1/air-quality?latitude='+lat+'&longitude='+lon+'&current=european_aqi,pm2_5')
+      .then(function(r){return r.json()}).then(function(aq){
+        var aqi=aq.current.european_aqi||0;
+        document.getElementById('env-aqi').textContent=Math.round(aqi)+' AQI';
+        var s='Excellent';if(aqi>20)s='Good';if(aqi>40)s='Moderate';if(aqi>60)s='Poor';if(aqi>80)s='Very Poor';if(aqi>100)s='Hazardous';
+        document.getElementById('env-air').textContent=s;
+      }).catch(function(){document.getElementById('env-aqi').textContent='N/A';document.getElementById('env-air').textContent='N/A'});
+      document.getElementById('env-loading').style.display='none';
+      document.getElementById('env-content').style.display='block';
+    }).catch(function(){document.getElementById('env-loading').textContent='❌ Weather fetch failed'});
+  } catch(err) {
+    document.getElementById('env-loading').textContent='❌ Location denied or unavailable.';
+  }
+}
+
+// ====== DEVICE MANAGEMENT ======
+var deleteId = null;
+
+function loadDevices(){
+  var devices = JSON.parse(localStorage.getItem('smartnova_devices')||'[]');
+  var list = document.getElementById('dev-list');
+  list.innerHTML = '';
+  if(devices.length === 0){
+    list.innerHTML = '<div class="empty"><div class="empty-ico">📱</div><div class="empty-title">No Devices Yet</div><div class="empty-sub">Tap "+ Add New Device" to add your TV, AC, Fan or other IR devices.</div></div>';
+    return;
+  }
+  devices.forEach(function(dev){
+    var div = document.createElement('div');
+    div.className = 'dev-card';
+    div.innerHTML = '<div class="dev-icon">'+dev.typeIcon+'</div>'
+      +'<div class="dev-info"><div class="dev-name">'+dev.name+'</div><div class="dev-meta">'+dev.brandName+' • '+dev.typeName+'</div></div>'
+      +'<div class="dev-del" onclick="event.stopPropagation();askDel(\''+dev.id+'\',\''+dev.name.replace(/'/g,"\\'")+'\')">✕</div>'
+      +'<div class="dev-arrow">›</div>';
+    div.onclick = function(){ openDevice(dev); };
+    list.appendChild(div);
+  });
+}
+
+function openDevice(dev){
+  // Route to the correct remote page based on device type
+  if(dev.type === 'ac'){
+    // For LG AC, use the existing ac.html. For others, also use ac.html but pass brand
+    location.href = 'pages/ac.html?id='+dev.id+'&brand='+dev.brand;
+  } else if(dev.type === 'tv'){
+    location.href = 'pages/tv-remote.html?id='+dev.id;
+  } else if(dev.type === 'stb'){
+    // STB uses same layout as TV remote
+    location.href = 'pages/tv-remote.html?id='+dev.id;
+  } else if(dev.type === 'fan'){
+    location.href = 'pages/tv-remote.html?id='+dev.id;
+  } else {
+    // Generic — use TV remote as fallback (power, nav, etc)
+    location.href = 'pages/tv-remote.html?id='+dev.id;
+  }
+}
+
+function askDel(id, name){
+  deleteId = id;
+  document.getElementById('del-name').textContent = '"' + name + '" will be removed from your dashboard.';
+  document.getElementById('del-overlay').classList.remove('hidden');
+}
+function cancelDel(){
+  deleteId = null;
+  document.getElementById('del-overlay').classList.add('hidden');
+}
+function confirmDel(){
+  if(!deleteId) return;
+  var devices = JSON.parse(localStorage.getItem('smartnova_devices')||'[]');
+  devices = devices.filter(function(d){return d.id !== deleteId});
+  localStorage.setItem('smartnova_devices', JSON.stringify(devices));
+  deleteId = null;
+  document.getElementById('del-overlay').classList.add('hidden');
+  loadDevices();
+  showToast('🗑️ Device removed');
+}
+
+function showToast(m){var t=document.getElementById('toast');t.textContent=m;t.className='toast';clearTimeout(t._t);t._t=setTimeout(function(){t.className='toast hidden'},2500)}
+
+// Init
+loadDevices();
+fetchEnvData();
+setInterval(fetchEnvData,300000);
+</script>
+</body>
+</html>
