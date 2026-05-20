@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://syedshahid0711.github.io/smart-remote/sitemap.xml
